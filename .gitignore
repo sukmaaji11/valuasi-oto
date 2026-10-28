@@ -1,0 +1,5 @@
+__pycache__/
+*.json
+*.pdf
+olx_temp*.json
+buat_key.py

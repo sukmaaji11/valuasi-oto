@@ -1,0 +1,8 @@
+streamlit
+cloudscraper
+beautifulsoup4
+numpy
+pandas
+playwright
+reportlab
+pyvirtualdisplay
