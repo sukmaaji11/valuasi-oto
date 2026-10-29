@@ -20,7 +20,7 @@ import hashlib
 
 # ==================== KODE RAHASIA DEVELOPER ====================
 SECRET_SALT = "VALUASIOTO_149K_SEKALI_BELI_2026"
-NOMOR_WA_PENJUAL = "6281234567890"  # Ganti dengan nomor WhatsApp kamu (format 62)
+NOMOR_WA_PENJUAL = "6289633414555"  # Ganti dengan nomor WhatsApp kamu (format 62)
 
 def verify_license_key(input_key, nama_pemilik):
     if not input_key or not nama_pemilik:
@@ -347,19 +347,19 @@ def generate_pdf_deal_sheet(nama_showroom, info_search, tahun_range, filter_tipe
     buffer.seek(0)
     return buffer
 
-# ==================== HEADER UTAMA ====================
+# ==================== HEADER UTAMA (DIKECILKAN UNTUK MOBILE) ====================
 st.markdown(f"""
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-        <div style="background: linear-gradient(135deg, #FF6B00, #FF8E53); width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; box-shadow: 0 4px 10px rgba(255, 107, 0, 0.25);">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-top: 5px;">
+        <div style="background: linear-gradient(135deg, #FF6B00, #FF8E53); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; box-shadow: 0 3px 8px rgba(255, 107, 0, 0.25);">
             ⚡
         </div>
         <div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <h2 style="margin: 0; padding: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; color: #0F172A;">{NAMA_PRODUK}</h2>
-                <span style="background-color: #EFF6FF; color: #1D4ED8; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; border: 1px solid #BFDBFE;">B2B ENTERPRISE</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <h3 style="margin: 0; padding: 0; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.3px; color: #0F172A;">{NAMA_PRODUK}</h3>
+                <span style="background-color: #EFF6FF; color: #1D4ED8; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid #BFDBFE;">B2B</span>
             </div>
-            <p style="margin: 2px 0 0 0; padding: 0; font-size: 0.85rem; color: #64748B;">
-                <b>{TAGLINE}</b> &bull; Real-Time Aggregator 6 Platform (OLX, Mobil123, Carmudi, Oto.com, Carsome, Carro)
+            <p style="margin: 0; padding: 0; font-size: 0.75rem; color: #64748B;">
+                Real-Time Aggregator 6 Platform (OLX, Mobil123, Carmudi, dll)
             </p>
         </div>
     </div>
@@ -409,14 +409,22 @@ st.sidebar.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=T
 
 st.sidebar.markdown("<hr style='margin: 15px 0; border: none; border-top: 1px solid #E2E8F0;' />", unsafe_allow_html=True)
 
-st.sidebar.markdown("<div style='font-size: 0.82rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;'>🎯 Filter Varian & Rentang Tahun</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='font-size: 0.82rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;'>🎯 Filter Varian & Tahun</div>", unsafe_allow_html=True)
 
-tahun_range = st.sidebar.slider(
-    "Rentang Tahun Pembuatan",
-    min_value=2005,
-    max_value=2026,
-    value=(2016, 2023)
-)
+# Membuat pilihan tahun dari 2005 sampai 2026
+daftar_tahun = list(range(2026, 2004, -1)) # Urut dari yang terbaru
+
+col_th1, col_th2 = st.sidebar.columns(2)
+with col_th1:
+    tahun_awal = st.selectbox("Dari Tahun", daftar_tahun, index=daftar_tahun.index(2016))
+with col_th2:
+    tahun_akhir = st.selectbox("Sampai Tahun", daftar_tahun, index=daftar_tahun.index(2023))
+
+# Validasi agar tahun awal tidak lebih besar dari tahun akhir
+if tahun_awal > tahun_akhir:
+    tahun_awal, tahun_akhir = tahun_akhir, tahun_awal
+
+tahun_range = (tahun_awal, tahun_akhir)
 
 filter_tipe = st.sidebar.text_input(
     "Tipe / Spesifikasi Khusus", 
@@ -769,43 +777,61 @@ if st.session_state.data_searched:
     counts = info.get("counts", {})
 
     if prices:
-        st.info(
-            f"🌐 **Intelijen Data Pasar (`{info['merek']} {info['model']}`):** "
-            f"**OLX ({counts.get('OLX',0)})** | Mobil123 ({counts.get('Mobil123',0)}) | Carmudi ({counts.get('Carmudi',0)}) | "
-            f"Oto.com ({counts.get('Oto.com',0)}) | Carsome ({counts.get('Carsome',0)}) | Carro ({counts.get('Carro',0)}) | "
-            f"**Hasil Valid setelah Filter Rentang ({min_yr}–{max_yr}): {len(filtered_data)} unit**"
-        )
+        # 3. JUDUL PENCARIAN & INFO PLATFORM RINGKAS
+        st.markdown(f"""
+            <div style="margin-bottom: 12px;">
+                <h4 style="margin: 0; color: #0F172A; font-size: 1.05rem; font-weight: 700;">
+                    🚗 {info['merek']} {info['model']} ({min_yr}–{max_yr})
+                </h4>
+                <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #64748B;">
+                    Ditemukan <b>{len(filtered_data)} unit valid</b> dari OLX ({counts.get('OLX',0)}), Carmudi ({counts.get('Carmudi',0)}), Mobil123 ({counts.get('Mobil123',0)}), dll.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
         
         harga_median = int(np.median(prices))
         harga_min = min(prices)
         harga_max = max(prices)
         
+        # 4. CARD / CENTER UNTUK HARGA PASAR AGAR LEBIH FOKUS
         col1, col2, col3 = st.columns(3)
-        col1.metric("Harga Pasaran Reliable (Median)", fmt_rp(harga_median))
-        col2.metric("Harga Terendah Pasar", fmt_rp(harga_min))
-        col3.metric("Harga Tertinggi Pasar", fmt_rp(harga_max))
+        with col1:
+            with st.container(border=True):
+                st.markdown("<p style='margin:0; font-size:0.75rem; color:#64748B; text-align:center;'>MEDIAN PASAR</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='margin:4px 0 0 0; font-size:0.95rem; font-weight:700; color:#0F172A; text-align:center;'>{fmt_rp(harga_median)}</p>", unsafe_allow_html=True)
+        with col2:
+            with st.container(border=True):
+                st.markdown("<p style='margin:0; font-size:0.75rem; color:#64748B; text-align:center;'>TERENDAH</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='margin:4px 0 0 0; font-size:0.95rem; font-weight:700; color:#059669; text-align:center;'>{fmt_rp(harga_min)}</p>", unsafe_allow_html=True)
+        with col3:
+            with st.container(border=True):
+                st.markdown("<p style='margin:0; font-size:0.75rem; color:#64748B; text-align:center;'>TERTINGGI</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='margin:4px 0 0 0; font-size:0.95rem; font-weight:700; color:#DC2626; text-align:center;'>{fmt_rp(harga_max)}</p>", unsafe_allow_html=True)
         
-        st.divider()
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
         
-        st.subheader("🛠️ Kalkulator Valuasi & Estimasi Perbaikan (PR)")
-        
-        col_input1, col_input2 = st.columns(2)
-        with col_input1:
-            biaya_pajak = st.number_input("Estimasi Tunggakan Pajak (Rp)", value=0, step=500000)
-            st.caption(f"💰 Nominal: **{fmt_rp(biaya_pajak)}**")
-            
-            biaya_cat = st.number_input("Estimasi Perbaikan Bodi/Cat (Rp)", value=1500000, step=500000)
-            st.caption(f"💰 Nominal: **{fmt_rp(biaya_cat)}**")
-            
-            biaya_mesin = st.number_input("Estimasi Perbaikan Mesin/Kaki-kaki (Rp)", value=1000000, step=500000)
-            st.caption(f"💰 Nominal: **{fmt_rp(biaya_mesin)}**")
-            
-        with col_input2:
-            biaya_salon = st.number_input("Biaya Detailing/Salon (Rp)", value=500000, step=100000)
-            st.caption(f"💰 Nominal: **{fmt_rp(biaya_salon)}**")
-            
-            target_margin = st.number_input("Target Untung / Margin Kamu (Rp)", value=10000000, step=1000000)
-            st.caption(f"💰 Nominal: **{fmt_rp(target_margin)}**")
+        # 5. SUB-JUDUL KALKULATOR YANG LEBIH PROPORSIONAL & KECIL DI HP
+        st.markdown("<h4 style='font-size: 1.1rem; font-weight: 700; color: #0F172A; margin-bottom: 8px;'>🛠️ Kalkulator Valuasi & Estimasi Perbaikan</h4>", unsafe_allow_html=True)
+        # Menggunakan Expander/Tabs atau Form yang lebih ringkas untuk HP
+        with st.container(border=True):
+            st.caption("Masukkan estimasi biaya pembenahan unit sebelum dijual kembali:")
+            col_input1, col_input2 = st.columns(2)
+            with col_input1:
+                biaya_pajak = st.number_input("Estimasi Tunggakan Pajak (Rp)", value=0, step=500000)
+                st.caption(f"💰 Nominal: **{fmt_rp(biaya_pajak)}**")
+                
+                biaya_cat = st.number_input("Estimasi Perbaikan Bodi/Cat (Rp)", value=1500000, step=500000)
+                st.caption(f"💰 Nominal: **{fmt_rp(biaya_cat)}**")
+                
+                biaya_mesin = st.number_input("Estimasi Perbaikan Mesin/Kaki-kaki (Rp)", value=1000000, step=500000)
+                st.caption(f"💰 Nominal: **{fmt_rp(biaya_mesin)}**")
+                
+            with col_input2:
+                biaya_salon = st.number_input("Biaya Detailing/Salon (Rp)", value=500000, step=100000)
+                st.caption(f"💰 Nominal: **{fmt_rp(biaya_salon)}**")
+                
+                target_margin = st.number_input("Target Untung / Margin Kamu (Rp)", value=10000000, step=1000000)
+                st.caption(f"💰 Nominal: **{fmt_rp(target_margin)}**")
 
         total_pr = biaya_pajak + biaya_cat + biaya_mesin + biaya_salon
         harga_beli_maksimal = harga_median - total_pr - target_margin
@@ -814,14 +840,20 @@ if st.session_state.data_searched:
         
         st.markdown("---")
         
-        st.success(f"### 💡 **Rekomendasi Beli Maksimal (Walk-Away Price):** {fmt_rp(harga_beli_maksimal)}")
+        # Kotak Rekomendasi Utama yang Lebih Ringkas & Pas di Mobile
+        st.markdown(f"""
+            <div style="background-color: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 12px 15px; margin-bottom: 15px;">
+                <p style="margin: 0; font-size: 0.8rem; font-weight: 700; color: #047857;">💡 REKOMENDASI BELI MAKSIMAL (WALK-AWAY PRICE)</p>
+                <h3 style="margin: 4px 0 0 0; font-size: 1.3rem; font-weight: 800; color: #065F46;">{fmt_rp(harga_beli_maksimal)}</h3>
+            </div>
+        """, unsafe_allow_html=True)
         
         with st.expander("📊 **Rincian Detail Analisis Anggaran & Margin Trader**", expanded=True):
             r1, r2, r3, r4 = st.columns(4)
-            r1.metric("1. Target Jual Pasar", fmt_rp(harga_median))
-            r2.metric("2. Total Pembenahan (PR)", fmt_rp(total_pr))
-            r3.metric("3. Total Modal Dikeluarkan", fmt_rp(total_modal_investasi))
-            r4.metric("4. Target Margin Net", fmt_rp(target_margin), delta=f"{persen_diskon:.1f}% di bawah pasar")
+            r1.metric("Target Jual", fmt_rp(harga_median))
+            r2.metric("Total PR", fmt_rp(total_pr))
+            r3.metric("Total Modal", fmt_rp(total_modal_investasi))
+            r4.metric("Margin Net", fmt_rp(target_margin), delta=f"{persen_diskon:.1f}% di bawah pasar")
             
             st.markdown(
                 f"""
@@ -831,8 +863,8 @@ if st.session_state.data_searched:
                 * **Target Diskon Pembelian:** Minimal **{persen_diskon:.1f}% di bawah harga pasar median** untuk mengamankan margin **{fmt_rp(target_margin)}**.
                 """
             )
-        # Tambahkan kode ini tepat di bawah expander "📊 Rincian Detail Analisis Anggaran & Margin Trader" di app.py:
-        st.markdown("### 📄 Export Lembar Penawaran (PDF Deal Sheet)")
+        # Sub-judul Export PDF yang Lebih Kecil
+        st.markdown("<p style='font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 6px;'>📄 Export Lembar Penawaran (PDF Deal Sheet)</p>", unsafe_allow_html=True)
 
         col_pdf1, col_pdf2 = st.columns([2, 1])
         with col_pdf1:
@@ -875,7 +907,8 @@ if st.session_state.data_searched:
             )
         st.divider()
         
-        st.subheader(f"📊 Sampel Data Pasar Real-Time ({len(filtered_data)} Unit Ditemukan)")
+        # Sub-judul Sampel Data Pasar yang Lebih Proporsional
+        st.markdown(f"<p style='font-size: 0.95rem; font-weight: 700; color: #0F172A; margin-bottom: 10px;'>📊 Sampel Data Pasar Real-Time ({len(filtered_data)} Unit)</p>", unsafe_allow_html=True)
         
         tab_table, tab_cards = st.tabs(["📋 Tabel Interaktif dengan Link Listing", "🎴 Tampilan Kartu (Cards)"])
         
