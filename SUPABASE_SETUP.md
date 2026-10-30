@@ -80,15 +80,27 @@ saved in history.
    Enable and start the unit with `systemctl daemon-reload`, then
    `systemctl enable --now valuasioto-license-session`. The service listens only
    on localhost and must not be exposed directly to the internet.
-3. Configure Nginx using
+3. Copy the static PWA files to a directory readable by Nginx. The app's home
+   directory is not accessible to the Nginx worker, so do not point Nginx into
+   `/home/valuasi-oto` or relax its permissions:
+
+   ```sh
+   sudo install -d -o root -g root -m 755 /var/www/valuasioto/pwa
+   sudo cp -a /home/valuasi-oto/valapp/pwa/. /var/www/valuasioto/pwa/
+   sudo chown -R root:root /var/www/valuasioto/pwa
+   sudo find /var/www/valuasioto/pwa -type d -exec chmod 755 {} \;
+   sudo find /var/www/valuasioto/pwa -type f -exec chmod 644 {} \;
+   ```
+
+4. Configure Nginx using
    [`deploy/nginx-pwa-locations.conf`](./deploy/nginx-pwa-locations.conf).
    Include it inside the existing HTTPS `server` block for the domain. In the
    existing Streamlit `location /` block, add
    [`deploy/nginx-pwa-injection.conf`](./deploy/nginx-pwa-injection.conf).
    Preserve the existing certificate and WebSocket proxy settings.
-4. Restart Streamlit after adding `LICENSE_SESSION_SECRET`, then run
+5. Restart Streamlit after adding `LICENSE_SESSION_SECRET`, then run
    `nginx -t` and reload Nginx.
-5. Confirm that
+6. Confirm that
    `https://valuasi-oto.duckdns.org/pwa/manifest.webmanifest`,
    `/sw.js`, and `/activate` load over HTTPS. The app should show **Pasang
    ValuasiOto** where the browser supports an install prompt.
