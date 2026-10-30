@@ -53,8 +53,14 @@ Supabase service-role key.
 
 The PWA is online-only: it caches the app icon and manifest, but never caches
 Streamlit pages, search results, API calls, or listing data. The PWA assets are
-in [`pwa/`](./pwa/) and the Nginx example is
-[`deploy/nginx-valuasioto.conf`](./deploy/nginx-valuasioto.conf).
+in [`pwa/`](./pwa/).
+
+On the VPS, configure the three Supabase values in
+`/home/valuasi-oto/valapp/.streamlit/secrets.toml`. Keep the file owned by the
+app user and restrict it to that user (`chmod 600`); never add it to GitHub.
+For example, copy it over SSH from a trusted local machine or edit it directly
+on the server. Do not paste the values into chat or shell commands that are
+saved in history.
 
 1. Generate a session secret on the server, for example with
    `openssl rand -hex 32`. Add it as `LICENSE_SESSION_SECRET` to the Streamlit
