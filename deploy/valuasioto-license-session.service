@@ -1,0 +1,20 @@
+[Unit]
+Description=ValuasiOto persistent license session service
+After=network.target
+
+[Service]
+Type=simple
+User=valuasi-oto
+Group=valuasi-oto
+WorkingDirectory=/home/valuasi-oto/valapp
+EnvironmentFile=/etc/valuasioto/license-session.env
+ExecStart=/home/valuasi-oto/valapp/venv/bin/python /home/valuasi-oto/valapp/license_session_server.py
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target

@@ -3,3 +3,4 @@ __pycache__/
 *.pdf
 olx_temp*.json
 buat_key.py
+.streamlit/secrets.toml

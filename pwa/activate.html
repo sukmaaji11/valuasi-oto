@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#172554">
+    <meta name="referrer" content="no-referrer">
+    <title>Aktivasi ValuasiOto</title>
+    <style>
+      :root { color-scheme: light; font-family: system-ui, sans-serif; }
+      body {
+        display: grid;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        place-items: center;
+        background: #f8fafc;
+        color: #0f172a;
+      }
+      main {
+        width: min(100%, 420px);
+        box-sizing: border-box;
+        padding: 28px;
+        border: 1px solid #dbe3ee;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, .08);
+        text-align: center;
+      }
+      img { width: 64px; height: 64px; }
+      h1 { margin: 12px 0 6px; font-size: 1.35rem; }
+      p { color: #64748b; line-height: 1.55; }
+      #status { margin-top: 20px; font-weight: 600; }
+      a { color: #c2410c; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/pwa/icons/icon-192.png" alt="">
+      <h1>Aktivasi ValuasiOto</h1>
+      <p>Memverifikasi lisensi dan menyimpan sesi aman di perangkat ini.</p>
+      <div id="status" role="status">Memproses aktivasi...</div>
+      <noscript>Aktivasi memerlukan JavaScript. Aktifkan JavaScript lalu muat ulang halaman.</noscript>
+    </main>
+    <script src="/pwa/activate.js" defer></script>
+  </body>
+</html>

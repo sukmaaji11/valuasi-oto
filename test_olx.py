@@ -4,6 +4,7 @@ import re
 import os
 import platform
 from playwright.sync_api import sync_playwright
+from scraper_utils import extract_mileage_range, parse_listing_price
 
 def scrape_olx_standalone(merek_car, model_car, output_file="olx_temp.json"):
     # TRIK CLOUD: Jika berjalan di Linux (Streamlit Cloud), aktifkan Virtual Monitor (Xvfb)
@@ -71,10 +72,8 @@ def scrape_olx_standalone(merek_car, model_car, output_file="olx_temp.json"):
                     if not (merek_match and model_match):
                         continue
 
-                    price_match = re.search(r'Rp\s*([\d\.,]+)', card_text)
-                    if price_match:
-                        clean_price = re.sub(r'[^\d]', '', price_match.group(1))
-                        price_val = int(clean_price) if clean_price else 0
+                    price_val = parse_listing_price(card_text) or 0
+                    if price_val:
 
                         if price_val > 30000000:
                             year_match = re.search(r'\b(20[0-2][0-9]|19[8-9][0-9])\b', card_text)
@@ -89,12 +88,43 @@ def scrape_olx_standalone(merek_car, model_car, output_file="olx_temp.json"):
                                 non_price_lines = [l for l in lines if not re.match(r'^Rp\s*[\d\.,]+$', l, re.I)]
                                 title_text = non_price_lines[0] if non_price_lines else f"{merek_car} {model_car}"
 
+                            mileage_min_km, mileage_max_km = extract_mileage_range(
+                                card_text
+                            )
+                            location = None
+                            for selector in (
+                                '[itemprop="addressLocality"]',
+                                '[data-testid="location-date"]',
+                                '[data-testid*="location"]',
+                                '[class*="location"]',
+                            ):
+                                location_element = link.query_selector(selector)
+                                if not location_element:
+                                    continue
+                                location_text = location_element.inner_text().strip()
+                                location_text = re.sub(
+                                    r"(?i)\s*(?:,|[•|])?\s*\d+\s*"
+                                    r"(?:menit|jam|hari|minggu|bulan|tahun)"
+                                    r".*$",
+                                    "",
+                                    location_text,
+                                ).strip(" ,|•-")
+                                if location_text and not re.fullmatch(
+                                    r"(?i)(lokasi|location|indonesia)",
+                                    location_text,
+                                ):
+                                    location = location_text
+                                    break
+
                             olx_data.append({
                                 "source": "OLX",
                                 "title": title_text,
                                 "price": price_val,
                                 "year": extracted_year,
-                                "url": full_url
+                                "url": full_url,
+                                "mileage_min_km": mileage_min_km,
+                                "mileage_max_km": mileage_max_km,
+                                "location": location,
                             })
                 except Exception:
                     continue
